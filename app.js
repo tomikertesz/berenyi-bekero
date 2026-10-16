@@ -1,5 +1,5 @@
 (() => {
-  const STORAGE_KEY = "berenyi-intake-v2";
+  const STORAGE_KEY = "berenyi-intake-v3";
   const WEB3FORMS_URL = "https://api.web3forms.com/submit";
   const TEAM_TYPES = {
     ugyvedek: { label: "Ügyvéd", defaultTitle: "Ügyvéd" },
@@ -36,7 +36,6 @@
     branding: {
       logo: "",
       languages: "hu",
-      photos: "",
     },
     team: {
       ugyvedek: [
@@ -44,7 +43,6 @@
           name: "dr. Berényi András",
           title: "Ügyvéd, Irodavezető",
           bio: "",
-          photo: "",
         },
       ],
       jeloltek: [],
@@ -81,7 +79,6 @@
     card.querySelector('[data-field="name"]').value = data.name || "";
     card.querySelector('[data-field="title"]').value = data.title ?? meta.defaultTitle;
     card.querySelector('[data-field="bio"]').value = data.bio || "";
-    card.querySelector('[data-field="photo"]').value = data.photo || "";
 
     card.querySelector("[data-remove]").addEventListener("click", () => {
       card.remove();
@@ -98,7 +95,6 @@
       name: card.querySelector('[data-field="name"]').value.trim(),
       title: card.querySelector('[data-field="title"]').value.trim(),
       bio: card.querySelector('[data-field="bio"]').value.trim(),
-      photo: card.querySelector('[data-field="photo"]').value.trim(),
     }));
   }
 
@@ -132,14 +128,13 @@
   }
 
   function formatPeople(list, heading) {
-    const filled = list.filter((p) => p.name || p.bio || p.photo);
+    const filled = list.filter((p) => p.name || p.bio);
     if (!filled.length) return `${heading}: (nincs megadva)\n`;
     const lines = filled.map((p, i) => {
       return [
         `  ${i + 1}. ${p.name || "(névtelen)"}`,
         p.title ? `     Pozíció: ${p.title}` : "",
         p.bio ? `     Bio: ${p.bio}` : "",
-        p.photo ? `     Fotó: ${p.photo}` : "",
       ]
         .filter(Boolean)
         .join("\n");
@@ -190,7 +185,7 @@
       "=== ARCULAT ===",
       `Logo: ${data.branding.logo || "-"}`,
       `Nyelvek: ${langLabel[data.branding.languages] || data.branding.languages || "-"}`,
-      `Fotók: ${data.branding.photos || "-"}`,
+      "Fotók: külön e-mailben (tomikertesz10@gmail.com)",
       "",
       "=== JSON ===",
       JSON.stringify(data, null, 2),
