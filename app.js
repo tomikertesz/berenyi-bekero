@@ -34,7 +34,6 @@
       privacy: "",
     },
     branding: {
-      logo: "",
       languages: "hu",
     },
     team: {
@@ -183,9 +182,8 @@
       `Adatvédelem: ${data.legal.privacy || "(megírom)"}`,
       "",
       "=== ARCULAT ===",
-      `Logo: ${data.branding.logo || "-"}`,
       `Nyelvek: ${langLabel[data.branding.languages] || data.branding.languages || "-"}`,
-      "Fotók: külön e-mailben a tomikertesz10@gmail.com címre",
+      "Logo / fotók: külön e-mailben a tomikertesz10@gmail.com címre (ha nincs logo, Tomi megcsinálja)",
       "",
       "=== JSON ===",
       JSON.stringify(data, null, 2),
