@@ -1,10 +1,55 @@
 (() => {
-  const STORAGE_KEY = "berenyi-intake-v1";
+  const STORAGE_KEY = "berenyi-intake-v2";
   const WEB3FORMS_URL = "https://api.web3forms.com/submit";
   const TEAM_TYPES = {
     ugyvedek: { label: "Ügyvéd", defaultTitle: "Ügyvéd" },
     jeloltek: { label: "Ügyvédjelölt", defaultTitle: "ügyvédjelölt" },
     partnerek: { label: "Partner", defaultTitle: "" },
+  };
+
+  const DEFAULTS = {
+    brand: {
+      officeName: "Berényi és Társai Ügyvédi Iroda",
+      shortName: "BERÉNYI ÉS TÁRSAI",
+      welcome: "Üdvözöljük a Berényi és Társai Ügyvédi Iroda honlapján.\nForduljon hozzánk bizalommal.",
+    },
+    about: {
+      foundedYear: "",
+      founders: "dr. Berényi András",
+      story: "",
+    },
+    areas: {
+      list: "",
+      summary: "",
+    },
+    contact: {
+      phone: "+36 1 294 4174",
+      email: "iroda@berenyiestarsai.hu",
+      address: "1188 Budapest, Lőrinci u. 12/B.",
+      ekapcsolat: "18252563",
+    },
+    legal: {
+      chamberNumber: "",
+      chamberName: "Budapesti Ügyvédi Kamara",
+      privacy: "",
+    },
+    branding: {
+      logo: "",
+      languages: "hu",
+      photos: "",
+    },
+    team: {
+      ugyvedek: [
+        {
+          name: "dr. Berényi András",
+          title: "Ügyvéd, Irodavezető",
+          bio: "",
+          photo: "",
+        },
+      ],
+      jeloltek: [],
+      partnerek: [],
+    },
   };
 
   const form = document.getElementById("intake-form");
@@ -33,15 +78,10 @@
     card.dataset.team = type;
     card.querySelector(".person-card__label").textContent = `${meta.label} #${index}`;
 
-    const nameInput = card.querySelector('[data-field="name"]');
-    const titleInput = card.querySelector('[data-field="title"]');
-    const bioInput = card.querySelector('[data-field="bio"]');
-    const photoInput = card.querySelector('[data-field="photo"]');
-
-    nameInput.value = data.name || "";
-    titleInput.value = data.title ?? meta.defaultTitle;
-    bioInput.value = data.bio || "";
-    photoInput.value = data.photo || "";
+    card.querySelector('[data-field="name"]').value = data.name || "";
+    card.querySelector('[data-field="title"]').value = data.title ?? meta.defaultTitle;
+    card.querySelector('[data-field="bio"]').value = data.bio || "";
+    card.querySelector('[data-field="photo"]').value = data.photo || "";
 
     card.querySelector("[data-remove]").addEventListener("click", () => {
       card.remove();
@@ -82,8 +122,7 @@
       },
     };
 
-    const fields = form.querySelectorAll("[name]");
-    fields.forEach((field) => {
+    form.querySelectorAll("[name]").forEach((field) => {
       const [group, key] = field.name.split(".");
       if (!group || !key || !data[group]) return;
       data[group][key] = field.value.trim();
@@ -93,15 +132,17 @@
   }
 
   function formatPeople(list, heading) {
-    if (!list.length) return `${heading}: (nincs megadva)\n`;
-    const lines = list.map((p, i) => {
-      const parts = [
+    const filled = list.filter((p) => p.name || p.bio || p.photo);
+    if (!filled.length) return `${heading}: (nincs megadva)\n`;
+    const lines = filled.map((p, i) => {
+      return [
         `  ${i + 1}. ${p.name || "(névtelen)"}`,
         p.title ? `     Pozíció: ${p.title}` : "",
         p.bio ? `     Bio: ${p.bio}` : "",
         p.photo ? `     Fotó: ${p.photo}` : "",
-      ].filter(Boolean);
-      return parts.join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
     });
     return `${heading}:\n${lines.join("\n")}\n`;
   }
@@ -117,11 +158,10 @@
       "BERÉNYI ÉS TÁRSAI — INFORMÁCIÓ-BEKÉRŐ",
       `Beküldve: ${data.meta.exportedAt}`,
       "",
-      "=== FŐOLDAL / BRAND ===",
+      "=== FŐOLDAL ===",
       `Iroda neve: ${data.brand.officeName || "-"}`,
       `Rövid név: ${data.brand.shortName || "-"}`,
       `Üdvözlő szöveg: ${data.brand.welcome || "-"}`,
-      `Hangnem: ${data.brand.tone || "-"}`,
       "",
       "=== IRODÁNK ===",
       formatPeople(data.team.ugyvedek, "Ügyvédek"),
@@ -131,7 +171,6 @@
       `Alapítás éve: ${data.about.foundedYear || "-"}`,
       `Alapítók: ${data.about.founders || "-"}`,
       `Történet: ${data.about.story || "-"}`,
-      `Megjegyzés: ${data.about.notes || "-"}`,
       "",
       "=== TERÜLETEK ===",
       `Lista:\n${data.areas.list || "-"}`,
@@ -139,26 +178,19 @@
       "",
       "=== KAPCSOLAT ===",
       `Telefon: ${data.contact.phone || "-"}`,
-      `Fax: ${data.contact.fax || "-"}`,
       `E-mail: ${data.contact.email || "-"}`,
-      `Űrlap címzett: ${data.contact.formRecipient || "-"}`,
       `Cím: ${data.contact.address || "-"}`,
       `E-kapcsolat: ${data.contact.ekapcsolat || "-"}`,
-      `Térkép: ${data.contact.mapUrl || "-"}`,
       "",
       "=== JOGI ===",
       `Kamarai szám: ${data.legal.chamberNumber || "-"}`,
       `Kamara: ${data.legal.chamberName || "-"}`,
-      `Kamara címe: ${data.legal.chamberAddress || "-"}`,
-      `Adatvédelem: ${data.legal.privacy || "-"}`,
-      `Közlemény: ${data.legal.notice || "-"}`,
+      `Adatvédelem: ${data.legal.privacy || "(megírjuk)"}`,
       "",
       "=== ARCULAT ===",
       `Logo: ${data.branding.logo || "-"}`,
-      `Színek: ${data.branding.colors || "-"}`,
       `Nyelvek: ${langLabel[data.branding.languages] || data.branding.languages || "-"}`,
       `Fotók: ${data.branding.photos || "-"}`,
-      `Megjegyzés: ${data.branding.notes || "-"}`,
       "",
       "=== JSON ===",
       JSON.stringify(data, null, 2),
@@ -180,96 +212,66 @@
 
   function applyFlatFields(saved) {
     if (!saved) return;
-    const groups = ["brand", "about", "areas", "contact", "legal", "branding"];
-    groups.forEach((group) => {
-      const values = saved[group] || {};
-      Object.entries(values).forEach(([key, value]) => {
+    ["brand", "about", "areas", "contact", "legal", "branding"].forEach((group) => {
+      Object.entries(saved[group] || {}).forEach(([key, value]) => {
         const input = form.querySelector(`[name="${group}.${key}"]`);
         if (input) input.value = value;
       });
     });
   }
 
-  function applyTeam(saved) {
+  function applyTeam(team) {
     Object.keys(TEAM_TYPES).forEach((type) => {
       document.getElementById(`list-${type}`).innerHTML = "";
       counters[type] = 0;
-      const people = saved?.team?.[type];
+      const people = team?.[type];
       if (Array.isArray(people) && people.length) {
         people.forEach((person) => createPersonCard(type, person));
-      } else {
-        createPersonCard(type);
       }
     });
+  }
+
+  function applyDefaults() {
+    applyFlatFields(DEFAULTS);
+    applyTeam(DEFAULTS.team);
   }
 
   function persist() {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(collectFormData()));
     } catch {
-      /* ignore quota / private mode */
+      /* ignore */
     }
   }
 
   function restore() {
     try {
+      localStorage.removeItem("berenyi-intake-v1");
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
-        applyTeam(null);
+        applyDefaults();
+        setStatus("Előre kitöltött alapadatok betöltve — szerkeszd nyugodtan.");
         return;
       }
       const saved = JSON.parse(raw);
       applyFlatFields(saved);
-      applyTeam(saved);
+      applyTeam(saved.team || DEFAULTS.team);
       setStatus("Korábbi kitöltés visszatöltve.");
     } catch {
-      applyTeam(null);
-      setStatus("A mentett adatok nem voltak olvashatók.", true);
+      applyDefaults();
+      setStatus("Alapadatok betöltve.", true);
     }
   }
 
-  function downloadJson() {
-    const data = collectFormData();
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    const stamp = new Date().toISOString().slice(0, 10);
-    a.href = url;
-    a.download = `berenyi-informacio-bekero-${stamp}.json`;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-    persist();
-    setStatus("JSON fájl letöltve.");
-  }
-
-  async function copyJson() {
-    const text = JSON.stringify(collectFormData(), null, 2);
-    try {
-      await navigator.clipboard.writeText(text);
-      persist();
-      setStatus("A válaszok a vágólapra kerültek — beilleszthető e-mailbe.");
-    } catch {
-      setStatus("A vágólap másolás nem sikerült. Próbáld a JSON letöltést.", true);
-    }
-  }
-
-  function clearForm() {
-    if (!confirm("Biztosan törlöd az összes kitöltött adatot?")) return;
-    form.reset();
+  function resetToDefaults() {
+    if (!confirm("Visszaállítod az előre kitöltött alapadatokat? A te módosításaid elvesznek.")) return;
     localStorage.removeItem(STORAGE_KEY);
-    Object.keys(TEAM_TYPES).forEach((type) => {
-      document.getElementById(`list-${type}`).innerHTML = "";
-      counters[type] = 0;
-      createPersonCard(type);
-    });
-    setStatus("Űrlap törölve.");
+    applyDefaults();
+    setStatus("Alapadatok visszaállítva.");
   }
 
   async function submitForm(event) {
     event.preventDefault();
-
     if (!validateRequired()) return;
 
     const accessKey = getAccessKey();
@@ -311,7 +313,7 @@
       persist();
       setStatus("Köszönjük! A válaszok elküldve — megérkeztek hozzánk e-mailben.");
     } catch (err) {
-      setStatus(err.message || "Hiba a küldés során. Próbáld újra, vagy használd a JSON letöltést.", true);
+      setStatus(err.message || "Hiba a küldés során. Próbáld újra.", true);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Elküldés";
@@ -327,18 +329,9 @@
     });
   });
 
-  form.addEventListener("input", () => {
-    persist();
-  });
-
+  form.addEventListener("input", persist);
   form.addEventListener("submit", submitForm);
-  document.getElementById("btn-download").addEventListener("click", downloadJson);
-  document.getElementById("btn-copy").addEventListener("click", copyJson);
-  document.getElementById("btn-clear").addEventListener("click", clearForm);
+  document.getElementById("btn-reset-defaults").addEventListener("click", resetToDefaults);
 
   restore();
-
-  if (!getAccessKey() || getAccessKey().includes("ILLESD_BE")) {
-    console.warn("INTAKE_CONFIG.web3formsAccessKey hiányzik — másold a config.example.js-t config.js-re.");
-  }
 })();
