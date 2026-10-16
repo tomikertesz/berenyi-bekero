@@ -180,12 +180,12 @@
       "=== JOGI ===",
       `Kamarai szám: ${data.legal.chamberNumber || "-"}`,
       `Kamara: ${data.legal.chamberName || "-"}`,
-      `Adatvédelem: ${data.legal.privacy || "(megírjuk)"}`,
+      `Adatvédelem: ${data.legal.privacy || "(megírom)"}`,
       "",
       "=== ARCULAT ===",
       `Logo: ${data.branding.logo || "-"}`,
       `Nyelvek: ${langLabel[data.branding.languages] || data.branding.languages || "-"}`,
-      "Fotók: külön e-mailben (tomikertesz10@gmail.com)",
+      "Fotók: külön e-mailben a tomikertesz10@gmail.com címre",
       "",
       "=== JSON ===",
       JSON.stringify(data, null, 2),
@@ -245,13 +245,13 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
         applyDefaults();
-        setStatus("Előre kitöltött alapadatok betöltve — szerkeszd nyugodtan.");
+        setStatus("Előre kitöltöttem az alapadatokat — szerkeszd nyugodtan.");
         return;
       }
       const saved = JSON.parse(raw);
       applyFlatFields(saved);
       applyTeam(saved.team || DEFAULTS.team);
-      setStatus("Korábbi kitöltés visszatöltve.");
+      setStatus("A korábbi kitöltésed visszatöltve.");
     } catch {
       applyDefaults();
       setStatus("Alapadatok betöltve.", true);
@@ -262,7 +262,7 @@
     if (!confirm("Visszaállítod az előre kitöltött alapadatokat? A te módosításaid elvesznek.")) return;
     localStorage.removeItem(STORAGE_KEY);
     applyDefaults();
-    setStatus("Alapadatok visszaállítva.");
+    setStatus("Visszaállítottam az alapadatokat.");
   }
 
   async function submitForm(event) {
@@ -306,9 +306,9 @@
       }
 
       persist();
-      setStatus("Köszönjük! A válaszok elküldve — megérkeztek hozzánk e-mailben.");
+      setStatus("Köszi! Megkaptam e-mailben.");
     } catch (err) {
-      setStatus(err.message || "Hiba a küldés során. Próbáld újra.", true);
+      setStatus(err.message || "Hiba a küldés során. Próbáld újra légyszi.", true);
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Elküldés";
